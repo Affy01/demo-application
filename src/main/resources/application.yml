@@ -1,0 +1,49 @@
+spring.cloud.stream.bindings:
+    input:
+      destination: input-topic
+      group: test-group
+      consumer:
+        max-attempts: 2
+        concurrency: 6
+    output:
+      destination: output-topic
+      producer:
+        partition-count: 6
+
+spring.cloud.stream:
+  default-binder: kafka
+  kafka:
+    binder:
+      auto-add-partitions: true
+      producer-properties:
+        key.serializer: org.apache.kafka.common.serialization.StringSerializer
+        max.request.size: 1
+        compression.type: snappy
+#        delivery.timeout.ms: 1
+#        request.timeout.ms: 1
+      consumer-properties:
+        key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        max.partition.fetch.bytes: 8000000
+        max.poll.records: 600
+
+spring.cloud.stream.kafka.bindings:
+  input:
+    consumer:
+      enableDlq: true
+      dlqName: dlq
+      autoCommitOnError: true
+      autoCommitOffset: true
+      republish-to-dlq: true
+      dlqProducerProperties:
+        configuration:
+          key.serializer: org.apache.kafka.common.serialization.StringSerializer
+          max.request.size: 1048576
+
+server:
+  port: 8084
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
